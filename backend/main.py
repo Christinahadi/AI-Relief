@@ -1,7 +1,10 @@
+# pylint: disable=no-member, protected-access
+
 import os
-import cv2
-import numpy as np
 import json
+import cv2
+import requests
+import numpy as np
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from PIL import Image
@@ -66,6 +69,30 @@ def get_gps_data(image):
     except Exception as e:
         return {"error": str(e)}
 
+# Reverse Geocode (Convert GPS to Address)
+def reverse_geocode(lat, lon):
+    """Convert GPS coordinates to a human-readable address using OpenStreetMap Nominatim."""
+    try:
+        url = "https://nominatim.openstreetmap.org/reverse"
+        params = {
+            "lat": lat,
+            "lon": lon,
+            "format": "json",
+            "zoom": 18,
+            "addressdetails": 1
+        }
+        headers = {
+            "User-Agent": "AI-Relief-App/1.0 (contact@example.com)"  # Replace with your contact info
+        }
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("display_name", "No address found")
+        else:
+            return f"Error: {response.status_code}"
+    except Exception as e:
+        return f"Exception during reverse geocoding: {e}"
+
 # Function to Process Local Images
 def process_local_images():
     if not os.path.exists(IMAGE_FOLDER):
@@ -84,6 +111,10 @@ def process_local_images():
         image = Image.open(image_path)
         gps_info = get_gps_data(image)
 
+        address = "No GPS data"
+        if gps_info and gps_info.get("latitude") and gps_info.get("longitude"):
+            address = reverse_geocode(gps_info["latitude"], gps_info["longitude"])
+
         # Convert image to OpenCV format
         image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         image_resized = cv2.resize(image_cv, (224, 224)) / 255.0  # Normalize
@@ -92,6 +123,7 @@ def process_local_images():
         results.append({
             "filename": image_name,
             "gps_info": gps_info if gps_info else "No GPS metadata found",
+            "address": address,
             "image_shape": image_processed.shape
         })
     
