@@ -11,6 +11,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from fractions import Fraction
 
+
 # Initialize FastAPI app
 app = FastAPI()
 
