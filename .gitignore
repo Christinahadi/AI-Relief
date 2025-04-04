@@ -1,4 +1,39 @@
+# Virtual environments
 venv/
+.env/
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
 *.pyd
 *.dll
+*.so
+
+# Model weights and checkpoints
+*.h5
+*.pth
+*.pt
+*.ckpt
+
+# Logs and output files
+*.log
+*.csv
+*.tsv
+
+# Dataset folders
+dataset/
+test/
+
+# Gradio cache or temp files
+.gradio/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode or PyCharm settings
+.vscode/
+.idea/
+
+# OS or editor files
+.DS_Store
+Thumbs.db
